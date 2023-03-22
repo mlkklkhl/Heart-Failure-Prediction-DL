@@ -25,10 +25,10 @@ class Model(torch.nn.Module):
         return x
 
 # # Data Collection
-df = pd.read_csv("NewExEnv-completed.csv")
+df = pd.read_csv("heart.csv")
 df.drop('Timestamp', axis=1, inplace=True)
 
-print(df.Target.unique())
+print(df.HeartDisease.unique())
 
 # # Data Preprocessing
 # Handling Categorical Data
@@ -41,14 +41,14 @@ for i in df.columns:
 # Normalise the data
 from sklearn import preprocessing
 scaler = preprocessing.MinMaxScaler()
-scaler.fit(df.iloc[:, 1:18])
-df.iloc[:, 1:18] = pd.DataFrame(scaler.transform(df.iloc[:, 1:18]), index=df.index, columns=df.iloc[:, 1:18].columns)
+scaler.fit(df.iloc[:, 1:11])
+df.iloc[:, 1:11] = pd.DataFrame(scaler.transform(df.iloc[:, 1:11]), index=df.index, columns=df.iloc[:, 1:11].columns)
 
 print(df.info())
 
 # Creating np arrays
-X = df.loc[:, df.columns != 'Target']
-y = df['Target']
+X = df.loc[:, df.columns != 'HeartDisease']
+y = df['HeartDisease']
 
 X = torch.FloatTensor(X.values)
 y = torch.LongTensor(y.values)
@@ -61,15 +61,15 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
 train = data_utils.TensorDataset(X_train, y_train)
 test = data_utils.TensorDataset(X_test, y_test)
 
-input = 19
-output = 4
+input = 11
+output = 2
 
 model = Model(input, output)
 
 print('The model:', model)
 
 learning_rate = 0.001
-epochs = 300
+epochs = 500
 batch_size = 64
 
 loss_fn = torch.nn.CrossEntropyLoss()
@@ -126,7 +126,7 @@ import matplotlib.pyplot as plt
 round = [i for i in range(epochs)]
 
 plt.grid(visible=True, which='major', axis='both', c='0.95', ls='-', linewidth=1.0, zorder=0)
-plt.title("Loss")
+plt.title("Heart Failure Prediction training/testing loss")
 plt.plot(round, train_losses, '--', label='Train', color="darkgreen", alpha=0.5, linewidth=1.0)
 plt.plot(round, test_losses, '--', label='Test', color="maroon", alpha=0.5, linewidth=1.0)
 plt.xticks(rotation=45, fontsize=10)
@@ -136,7 +136,7 @@ plt.legend(fontsize=12, loc='lower right')
 plt.show()
 
 plt.grid(visible=True, which='major', axis='both', c='0.95', ls='-', linewidth=1.0, zorder=0)
-plt.title("Accuracy")
+plt.title("Heart Failure Prediction accuracy")
 plt.plot(round, accuracies, '--', label='Accuracy', color="darkgreen", alpha=0.5, linewidth=1.0)
 plt.xticks(rotation=45, fontsize=10)
 plt.ylabel('Accuracy', fontsize=10)
